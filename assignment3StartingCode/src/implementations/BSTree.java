@@ -11,7 +11,7 @@ import utilities.BSTreeADT;
  *
  * NOTE FOR HANS & XANDER:
  * I only implemented the inorder, preorder and postorder iterators and I left placeholders for everything else
-
+ * - Yvana
  * @param <E> Comparable element type
  */
 public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Serializable {
