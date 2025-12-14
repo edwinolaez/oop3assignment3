@@ -12,6 +12,12 @@ import utilities.BSTreeADT;
  * NOTE FOR HANS & XANDER:
  * I only implemented the inorder, preorder and postorder iterators and I left placeholders for everything else
  * - Yvana
+ * 
+ * Xander
+ * - getHeight()
+ * - removeMin()
+ * - removeMax()
+ * 
  * @param <E> Comparable element type
  */
 public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Serializable {
@@ -72,30 +78,159 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Se
     }
 
     /**
-     * Placeholder for Xander: return height of tree.
+     * Xander: return height of tree.
+     * Height is defined as the number of edges on the longest path from root to leaf.
+     * An empty tree has height -1, a tree with only root has height 0.
      */
     @Override
     public int getHeight() {
-        // TODO: Xander implements height calculation
-        return 0;
+        return getHeightHelper(root);
+    }
+    
+    /**
+     * Recursive helper method to calculate height
+     * @param node current node
+     * @return height of subtree rooted at node
+     */
+    private int getHeightHelper(BSTreeNode<E> node) {
+        // Empty tree has height -1
+        if (node == null) {
+            return -1;
+        }
+        
+        // Recursively get height of left and right subtrees
+        int leftHeight = getHeightHelper(node.getLeft());
+        int rightHeight = getHeightHelper(node.getRight());
+        
+        // Height is 1 + max of left and right subtree heights
+        return 1 + Math.max(leftHeight, rightHeight);
     }
 
     /**
-     * Placeholder for Xander: remove smallest node.
+     * Xander: remove smallest node.
+     * Returns the element that was removed.
      */
     @Override
     public E removeMin() {
-        // TODO: Xander implements removeMin
-        return null;
+        if (root == null) {
+            return null;
+        }
+        
+        // Find the minimum node (leftmost node)
+        BSTreeNode<E> minNode = root;
+        while (minNode.getLeft() != null) {
+            minNode = minNode.getLeft();
+        }
+        
+        E minElement = minNode.getElement();
+        
+        // Remove the minimum node
+        removeNode(minNode);
+        size--;
+        
+        return minElement;
     }
 
     /**
-     * Placeholder for Xander: remove largest node.
+     * Xander: remove largest node.
+     * Returns the element that was removed.
      */
     @Override
     public E removeMax() {
-        // TODO: Xander implements removeMax
-        return null;
+        if (root == null) {
+            return null;
+        }
+        
+        // Find the maximum node (rightmost node)
+        BSTreeNode<E> maxNode = root;
+        while (maxNode.getRight() != null) {
+            maxNode = maxNode.getRight();
+        }
+        
+        E maxElement = maxNode.getElement();
+        
+        // Remove the maximum node
+        removeNode(maxNode);
+        size--;
+        
+        return maxElement;
+    }
+    
+    /**
+     * Helper method to remove a node from the tree
+     * Handles three cases:
+     * 1. Node is a leaf (no children)
+     * 2. Node has one child
+     * 3. Node has two children (not typically used in removeMin/removeMax)
+     * 
+     * @param node the node to remove
+     */
+    private void removeNode(BSTreeNode<E> node) {
+        if (node == null) {
+            return;
+        }
+        
+        BSTreeNode<E> parent = node.getParent();
+        
+        // Case 1: Node is a leaf (no children)
+        if (node.isLeaf()) {
+            if (parent == null) {
+                // Removing the root
+                root = null;
+            } else if (parent.getLeft() == node) {
+                parent.setLeft(null);
+            } else {
+                parent.setRight(null);
+            }
+        }
+        // Case 2: Node has only a right child
+        else if (node.getLeft() == null) {
+            BSTreeNode<E> rightChild = node.getRight();
+            
+            if (parent == null) {
+                // Node is root
+                root = rightChild;
+                rightChild.setParent(null);
+            } else if (parent.getLeft() == node) {
+                parent.setLeft(rightChild);
+                rightChild.setParent(parent);
+            } else {
+                parent.setRight(rightChild);
+                rightChild.setParent(parent);
+            }
+        }
+        // Case 3: Node has only a left child
+        else if (node.getRight() == null) {
+            BSTreeNode<E> leftChild = node.getLeft();
+            
+            if (parent == null) {
+                // Node is root
+                root = leftChild;
+                leftChild.setParent(null);
+            } else if (parent.getLeft() == node) {
+                parent.setLeft(leftChild);
+                leftChild.setParent(parent);
+            } else {
+                parent.setRight(leftChild);
+                leftChild.setParent(parent);
+            }
+        }
+        // Case 4: Node has two children
+        // This is rare for removeMin/removeMax but included for completeness
+        else {
+            // Find inorder successor (smallest node in right subtree)
+            BSTreeNode<E> successor = node.getRight();
+            while (successor.getLeft() != null) {
+                successor = successor.getLeft();
+            }
+            
+            // Copy successor's data to this node
+            node.setElement(successor.getElement());
+            
+            // Remove the successor (which has at most one child)
+            removeNode(successor);
+            size++; // Compensate since we'll decrement in the calling method
+        }
     }
 
     /**
@@ -109,8 +244,8 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Se
     }
 
     /**
-     * inorder iterator (left → root → right)
-     * produces alphabetical order — used by WordTracker.
+     * inorder iterator (left to root to right)
+     * produces alphabetical order 
      */
     @Override
     public Iterator<E> inorderIterator() {
@@ -129,7 +264,7 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Se
     }
 
     /**
-     * preorder iterator (root → left → right)
+     * preorder iterator (root to left to right)
      */
     @Override
     public Iterator<E> preorderIterator() {
@@ -148,7 +283,7 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Se
     }
 
     /**
-     * postorder iterator (left → right → root)
+     * postorder iterator (left to right to root)
      */
     @Override
     public Iterator<E> postorderIterator() {
@@ -164,5 +299,37 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Se
         postorderHelper(node.getLeft(), list);
         postorderHelper(node.getRight(), list);
         list.add(node.getElement());
+    }
+    
+    /**
+     * Getter for root node (useful for testing and debugging)
+     * @return the root node
+     */
+    public BSTreeNode<E> getRoot() {
+        return root;
+    }
+    
+    /**
+     * Setter for root node (useful for Hans' add method)
+     * @param root the new root node
+     */
+    protected void setRoot(BSTreeNode<E> root) {
+        this.root = root;
+    }
+    
+    /**
+     * Increment size (useful for Hans' add method)
+     */
+    protected void incrementSize() {
+        size++;
+    }
+    
+    /**
+     * Decrement size (useful for Hans' remove operations if needed)
+     */
+    protected void decrementSize() {
+        if (size > 0) {
+            size--;
+        }
     }
 }
