@@ -16,6 +16,7 @@ import java.util.*;
 
 public class WordTracker
 {
+	private static final long serialVersionUID = 1L;
 	private static final String REPOSITORY_FILE = "repository.ser";
 	private static BSTree<Word> wordTree;
 	
@@ -41,6 +42,8 @@ public class WordTracker
 		wordTree = loadRepository();
 		
 		System.out.println("Processing file: "+ inputFile);
+		
+		processFile(inputFile);
 		
 		saveRepository();
 		
@@ -103,7 +106,7 @@ public class WordTracker
 		}
 	}
 	private static void processLine(String line, String filename, int lineNumber) {
-		String cleanLine = line.replaceAll("[^a-aZ-Z\\s]", " ");
+		String cleanLine = line.replaceAll("[^a-zA-Z\\s]", " ");
 		String[] words = cleanLine.trim().split("\\s+");
 		
 		for (String wordText : words) {
