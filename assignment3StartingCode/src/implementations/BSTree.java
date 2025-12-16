@@ -30,15 +30,51 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Se
     }
 
     /**
-     * Placeholder for Hans: add a new element into the BST.
+     * Hans - Add: add a new element into the BST.
      */
     @Override
-    public void add(E toAdd) {
-        // TODO: Hans implements BST insertion
-    }
+	public boolean add(E newEntry) throws NullPointerException {
+		if (newEntry == null) {
+			throw new NullPointerException("Cannot add null entry");
+		}
+		
+		if (root == null) {
+			root = new BSTreeNode<>(newEntry);
+			size++;
+			return true;
+		}
+		return addRecursive(root, newEntry);
+	}
+    
+    // recursive method to add (helper function)
+    private boolean addRecursive(BSTreeNode<E> current, E newEntry) {
+		int comparison = newEntry.compareTo(current.getElement());
+		
+		if (comparison < 0) {
+			if (current.getLeft() == null) {
+				current.setLeft(new BSTreeNode<>(newEntry));
+				size++;
+				return true;
+			}
+			return addRecursive(current.getLeft(), newEntry);
+			
+		} else if (comparison > 0) {
+			
+			if (current.getRight() == null) {
+				current.setRight(new BSTreeNode<>(newEntry));
+				size++;
+				return true;
+			}
+			
+			return addRecursive(current.getRight(), newEntry);
+		
+		} else {
+			return false;
+		}
+	}
 
     /**
-     * Placeholder for Hans: returns the number of elements.
+     * Hans - Size: returns the number of elements.
      */
     @Override
     public int size() {
@@ -46,30 +82,51 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Se
     }
 
     /**
-     * Placeholder for Hans: returns true if tree is empty.
+     * Hans - isEmpty: returns true if tree is empty.
      */
     @Override
     public boolean isEmpty() {
-        return size == 0;
+    	return root == null;
     }
 
     /**
-     * Placeholder for Hans/Xander: search for element.
+     * Hans - Search: search for element.
      */
     @Override
-    public E search(E toSearch) {
-        // TODO: Hans implements search
-        return null;
-    }
+	public BSTreeNode<E> search (E entry) throws NullPointerException {
+		if (entry == null) {
+			throw new NullPointerException("Cannot search for null entry");
+		} 
+		return searchRecursive(root, entry);
+	}
+    
+    // recursive search helper function
+    private BSTreeNode<E> searchRecursive(BSTreeNode<E> current, E entry) {
+		if (current == null) {
+			return null;
+		}
+		
+		int comparison = entry.compareTo(current.getElement());
+		
+		if (comparison == 0) {
+			return current;
+		} else if (comparison < 0) {
+			return searchRecursive(current.getLeft(), entry);
+		} else {
+			return searchRecursive(current.getRight(), entry);
+		}
+	}
 
     /**
-     * Placeholder for Hans: check if element exists.
+     * Hans - Contains: check if element exists.
      */
     @Override
-    public boolean contains(E toFind) {
-        // TODO: Hans implements contains
-        return false;
-    }
+	public boolean contains(E entry) throws NullPointerException {
+		if (entry == null) {
+			throw new NullPointerException("Cannot search for null entry");
+		}
+		return search(entry) != null;
+	}
 
     /**
      * Placeholder for Xander: return height of tree.
@@ -99,14 +156,23 @@ public class BSTree<E extends Comparable<? super E>> implements BSTreeADT<E>, Se
     }
 
     /**
-     * Placeholder for Hans: clears the tree.
+     * Hans - Clear: clears the tree.
      */
     @Override
     public void clear() {
-        // TODO: Hans implements clear()
         root = null;
         size = 0;
     }
+    
+    // Hans - gets the root of the tree
+    @Override
+	public BSTreeNode<E> getRoot() throws NullPointerException
+	{
+		if (root == null) {
+			throw new NullPointerException("Tree is empty - no root node");
+		}
+		return root;
+	}
 
     /**
      * inorder iterator (left → root → right)
